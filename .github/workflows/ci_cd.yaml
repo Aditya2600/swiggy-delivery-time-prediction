@@ -56,7 +56,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: us-east-1
      
       - name: Login to Amazon ECR
         id: login-ecr
@@ -87,19 +87,19 @@ jobs:
             aws s3 cp deployment.zip s3://deliverytimepredictiondeployment/deployment.zip
 
             
-      # # Deploy to AWS CodeDeploy using the uploaded ZIP file
-      # - name: Deploy to AWS CodeDeploy
-      #   if: success()
-      #   run: |
-      #       aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #       aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #       aws deploy create-deployment \
-      #       --application-name deliverytimeprediction \
-      #       --deployment-config-name CodeDeployDefault.OneAtATime \
-      #       --deployment-group-name deliverytimepredictiondeploymentgroup \
-      #       --s3-location bucket=deliverytimepredictiondeployment,key=deployment.zip,bundleType=zip \
-      #       --file-exists-behavior OVERWRITE \
-      #       --region ap-south-1
+      # Deploy to AWS CodeDeploy using the uploaded ZIP file
+      - name: Deploy to AWS CodeDeploy
+        if: success()
+        run: |
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws deploy create-deployment \
+            --application-name deliverytimeprediction \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name deliverytimepredictiondeploymentgroup \
+            --s3-location bucket=deliverytimepredictiondeployment,key=deployment.zip,bundleType=zip \
+            --file-exists-behavior OVERWRITE \
+            --region ap-south-1
 
 
   

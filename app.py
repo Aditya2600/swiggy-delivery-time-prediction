@@ -6,7 +6,6 @@ import pandas as pd
 import mlflow
 import json
 import joblib
-from pathlib import Path
 from mlflow import MlflowClient
 from sklearn import set_config
 from scripts.data_clean_utils import perform_data_cleaning
@@ -17,6 +16,13 @@ set_config(transform_output='pandas')
 # initialize dagshub
 import dagshub
 import mlflow.client
+
+dagshub.init(repo_owner='Aditya2600', 
+             repo_name='swiggy-delivery-time-prediction', 
+             mlflow=True)
+
+# set the mlflow tracking server
+mlflow.set_tracking_uri("https://dagshub.com/Aditya2600/swiggy-delivery-time-prediction.mlflow")
 
 
 class Data(BaseModel):  
@@ -71,38 +77,37 @@ nominal_cat_cols = ['weather',
 
 ordinal_cat_cols = ["traffic","distance_type"]
 
+#mlflow client
+client = MlflowClient()
+
+# load the model info to get the model name
+model_name = load_model_information("run_information.json")['model_name']
+
+# stage of the model
+stage = "Production"
+
+# get the latest model version
+# latest_model_ver = client.get_latest_versions(name=model_name,stages=[stage])
+# print(f"Latest model in production is version {latest_model_ver[0].version}")
+
+# load model path
+model_path = f"models:/{model_name}/{stage}"
+
+# load the latest model from model registry
+model = mlflow.sklearn.load_model(model_path)
+
+# load the preprocessor
+preprocessor_path = "models/preprocessor.joblib"
+preprocessor = load_transformer(preprocessor_path)
+
+# build the model pipeline
+model_pipe = Pipeline(steps=[
+    ('preprocess',preprocessor),
+    ("regressor",model)
+])
 
 # create the app
 app = FastAPI()
-
-@app.on_event("startup")
-def _startup():
-    # Initialize DagsHub / MLflow once at startup (not at import time)
-    dagshub.init(
-        repo_owner='Aditya2600',
-        repo_name='swiggy-delivery-time-prediction',
-        mlflow=True
-    )
-    mlflow.set_tracking_uri("https://dagshub.com/Aditya2600/swiggy-delivery-time-prediction.mlflow")
-
-    # Resolve paths relative to this file
-    here = Path(__file__).parent
-
-    # Load model name from run info
-    model_name = load_model_information(here / "run_information.json")['model_name']
-    stage = "Staging"
-    model_path = f"models:/{model_name}/{stage}"
-
-    # Load model and preprocessor
-    model = mlflow.sklearn.load_model(model_path)
-    preprocessor = load_transformer(here / "models" / "preprocessor.joblib")
-
-    # Build and store pipeline on app state
-    from sklearn.pipeline import Pipeline
-    app.state.model_pipe = Pipeline(steps=[
-        ("preprocess", preprocessor),
-        ("regressor", model)
-    ])
 
 # create the home endpoint
 @app.get(path="/")
@@ -137,10 +142,10 @@ def do_predictions(data: Data):
     # clean the raw input data
     cleaned_data = perform_data_cleaning(pred_data)
     # get the predictions
-    predictions = app.state.model_pipe.predict(cleaned_data)[0]
+    predictions = model_pipe.predict(cleaned_data)[0]
 
     return predictions
    
    
 if __name__ == "__main__":
-    uvicorn.run(app=app, host="0.0.0.0", port=8000)
+    uvicorn.run(app="app:app",host="0.0.0.0",port=8000)
