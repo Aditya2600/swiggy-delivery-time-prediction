@@ -1,78 +1,14 @@
-Swiggy-Delivery-Time-Prediction
-==============================
-
-Build a ML project that predicts food delivery time in minutes.
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
-
-
---------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
-
 # Swiggy Delivery Time Prediction (ML + MLOps)
 
 Predict **order ETA (minutes)** for food deliveries and ship the model with a **production‑grade MLOps stack**: DVC pipelines, MLflow tracking & model registry (DagsHub), unit tests, CI/CD (GitHub Actions), containerized FastAPI service, and AWS deployment (ECR + EC2 + CodeDeploy + Auto Scaling).
 
 <p align="center">
-  <img src="docs/images/architecture.png" alt="System Architecture" width="850">
+  <img src="docs/images/architecture.png" alt="System Architecture" width="900">
 </p>
 
-> **Screenshots**
->
-> Place the screenshots below in `docs/images/` with the given names (or change the paths):
-> - `mlflow_experiment.png` – MLflow run with metrics & artifacts  
-> - `model_registry.png` – Registered model & versions on DagsHub  
-> - `dvc_pipeline.png` – DVC DAG graph  
-> - `fastapi_swagger.png` – FastAPI Swagger UI  
-> - `gh_actions.png` – CI/CD workflow run  
-> - `aws_codedeploy.png` – CodeDeploy successful deployment
+> **Screenshots included in this repo**  
+> (all under `docs/images/`)  
+> `architecture.png`, `dvc_pipeline.png`, `mlflow_experiment.png`, `model_registry.png`, `s3_bucket.png`, `ecr_repo.png`, `aws_codedeploy.png`, `aws_s3_deployment.png`, `asg.png`.
 
 ---
 
@@ -110,7 +46,7 @@ Predict **order ETA (minutes)** for food deliveries and ship the model with a **
 - **AWS**: ECR, EC2, CodeDeploy, Auto Scaling Group
 
 <p align="center">
-  <img src="docs/images/dvc_pipeline.png" alt="DVC pipeline graph" width="750">
+  <img src="docs/images/dvc_pipeline.png" alt="DVC pipeline graph" width="850">
 </p>
 
 ---
@@ -192,6 +128,10 @@ dvc repro
 - Stages include: `data_cleaning → data_preparation → data_preprocessing → train → evaluation → register_model`
 - DVC ensures versioned data & deterministic runs.
 
+<p align="center">
+  <img src="docs/images/dvc_pipeline.png" alt="DVC DAG" width="800">
+</p>
+
 ---
 
 ## Experiment Tracking (MLflow @ DagsHub)
@@ -200,13 +140,14 @@ MLflow is configured to log runs to DagsHub:
 
 ```python
 import dagshub, mlflow
+
 dagshub.init(repo_owner="Aditya2600", repo_name="swiggy-delivery-time-prediction", mlflow=True)
 mlflow.set_tracking_uri("https://dagshub.com/Aditya2600/swiggy-delivery-time-prediction.mlflow")
 mlflow.set_experiment("DVC Pipeline")
 ```
 
 <p align="center">
-  <img src="docs/images/mlflow_experiment.png" alt="MLflow Experiments" width="800">
+  <img src="docs/images/mlflow_experiment.png" alt="MLflow Experiments" width="900">
 </p>
 
 ---
@@ -223,7 +164,7 @@ mlflow.set_experiment("DVC Pipeline")
   python src/models/evaluation.py
   ```
 
-`evaluation.py` also logs the trained model (and supporting artifacts) to the current MLflow run on DagsHub and writes a small **`run_information.json`** with the run id & model artifact path.
+`evaluation.py` also logs the trained model (and supporting artifacts) to the current MLflow run on DagsHub and writes **`run_information.json`** with the run id & model artifact path.
 
 ---
 
@@ -240,10 +181,10 @@ python scripts/promote_model_to_prod.py
 ```
 
 <p align="center">
-  <img src="docs/images/model_registry.png" alt="Model Registry" width="800">
+  <img src="docs/images/model_registry.png" alt="Model Registry" width="900">
 </p>
 
-> Note: Some MLflow endpoints are not supported on DagsHub. The repo uses a **save‑then‑log artifacts** approach to avoid `unsupported endpoint` errors.
+> Some MLflow endpoints are not supported on DagsHub. This repo uses a **save‑then‑log artifacts** approach to avoid `unsupported endpoint` errors.
 
 ---
 
@@ -260,38 +201,6 @@ python app.py
   1) Cleans & engineers features (`perform_data_cleaning`)  
   2) Transforms with saved **preprocessor**  
   3) Predicts with **Production** model from the registry
-
-<p align="center">
-  <img src="docs/images/fastapi_swagger.png" alt="FastAPI Swagger" width="800">
-</p>
-
-### Sample request
-
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "ID":"0x91ca ",
-    "Delivery_person_ID":"RANCHIRES09DEL03 ",
-    "Delivery_person_Age":"33",
-    "Delivery_person_Ratings":"4.6",
-    "Restaurant_latitude":23.351058,
-    "Restaurant_longitude":85.325731,
-    "Delivery_location_latitude":23.441058,
-    "Delivery_location_longitude":85.415731,
-    "Order_Date":"04-04-2022",
-    "Time_Orderd":"17:30:00",
-    "Time_Order_picked":"17:40:00",
-    "Weatherconditions":"conditions Sunny",
-    "Road_traffic_density":"Medium ",
-    "Vehicle_condition":1,
-    "Type_of_order":"Snack ",
-    "Type_of_vehicle":"motorcycle ",
-    "multiple_deliveries":"0",
-    "Festival":"No ",
-    "City":"Metropolitian "
-  }'
-```
 
 ---
 
@@ -315,32 +224,28 @@ docker run --name delivery_time_pred \
 Workflow: **`.github/workflows/ci-cd.yml`**
 
 - ✅ Install deps & `dvc pull`
-- ✅ Tests:
-  - Load model from **Staging** registry
-  - Perf gate (`MAE ≤ threshold`)
+- ✅ Tests: registry load + performance gate (MAE threshold)
 - ✅ If success: **promote** model → **Production**
 - ✅ Build & push image to **ECR**
-- ✅ Create **CodeDeploy** deployment (zip + upload to S3 + deploy)
-
-<p align="center">
-  <img src="docs/images/gh_actions.png" alt="GitHub Actions" width="800">
-</p>
+- ✅ Create **CodeDeploy** deployment (zip → upload to S3 → deploy)
 
 ---
 
 ## AWS Deployment
 
-- **ECR**: image registry
-- **EC2** + **Auto Scaling Group**: app runtime
-- **CodeDeploy**: zero‑downtime rollout using `appspec.yml` + scripts:
-  - `deploy/scripts/install_dependencies.sh`
-  - `deploy/scripts/start_docker.sh`
+**Services used:**
+- **S3** (stores deployment bundle used by CodeDeploy)  
+  <p align="center"><img src="docs/images/s3_bucket.png" alt="S3 bucket" width="850"></p>
+- **ECR** (container image registry)  
+  <p align="center"><img src="docs/images/ecr_repo.png" alt="ECR repository" width="850"></p>
+- **CodeDeploy** (orchestrates app rollout on EC2)  
+  <p align="center"><img src="docs/images/aws_codedeploy.png" alt="CodeDeploy" width="850"></p>
+- **S3 Deployment object** (the uploaded `deployment.zip` bundle)  
+  <p align="center"><img src="docs/images/aws_s3_deployment.png" alt="S3 deployment object" width="850"></p>
+- **EC2 Auto Scaling Group** (manages desired capacity)  
+  <p align="center"><img src="docs/images/asg.png" alt="Auto Scaling Group" width="850"></p>
 
-<p align="center">
-  <img src="docs/images/aws_codedeploy.png" alt="AWS CodeDeploy" width="800">
-</p>
-
-### CodeDeploy user‑data (install agent)
+**CodeDeploy user‑data (install agent)**
 
 ```bash
 #!/bin/bash
@@ -392,5 +297,3 @@ pytest tests/test_model_perf.py -q
 ## License
 
 Distributed under the MIT License. See `LICENSE` for details.
-
----
