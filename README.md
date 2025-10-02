@@ -45,10 +45,6 @@ Predict **order ETA (minutes)** for food deliveries and ship the model with a **
 - **CI/CD** with **GitHub Actions**: tests → perf gate → promote → build/push → deploy
 - **AWS**: ECR, EC2, CodeDeploy, Auto Scaling Group
 
-<p align="center">
-  <img src="docs/images/dvc_pipeline.png" alt="DVC pipeline graph" width="850">
-</p>
-
 ---
 
 ## Tech Stack
@@ -129,7 +125,7 @@ dvc repro
 - DVC ensures versioned data & deterministic runs.
 
 <p align="center">
-  <img src="docs/images/dvc_pipeline.png" alt="DVC DAG" width="800">
+  <img src="docs/images/dvc_pipeline.png" alt="DVC pipeline graph" width="850">
 </p>
 
 ---
