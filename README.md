@@ -8,7 +8,16 @@ Predict **order ETA (minutes)** for food deliveries and ship the model with a **
 
 > **Screenshots included in this repo**  
 > (all under `docs/images/`)  
-> `architecture.png`, `dvc_pipeline.png`, `mlflow_experiment.png`, `model_registry.png`, `s3_bucket.png`, `ecr_repo.png`, `aws_codedeploy.png`, `aws_s3_deployment.png`, `asg.png`.
+> `architecture.png`, `dvc_pipeline.png`, `mlflow_experiment.png`, `model_registry.png`, `s3_bucket.png`, `ecr_repo.png`, `aws_codedeploy.png`, `aws_s3_deployment.png`, `asg.png`, `ui1.png`, `ui2.png`.
+
+### UI Preview
+
+<p align="center">
+  <img src="docs/images/ui1.png" alt="UI prediction form" width="900">
+</p>
+<p align="center">
+  <img src="docs/images/ui2.png" alt="UI prediction result" width="900">
+</p>
 
 ---
 
